@@ -1,6 +1,8 @@
 PA-Music
 PA-Music is a Docker-based solution designed to stream online music and register to a SIP account, with easy web-based dashboard configuration.
 
+Linphone app is configured for SIP call and Icecast for play back and Mpv for music play.
+It is fully authomated process, playing without any interruption even after reboot and no user action need and changing the USB sound card output.
 
 🔧 Setup Instructions
 Create a folder named pa inside the home directory of a user named admin on your Ubuntu server.
