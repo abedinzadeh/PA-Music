@@ -55,12 +55,9 @@ chown -R admin:admin /home/admin/pa
 # ------------------- 6 BUILD AND RUN DOCKER -------------------
 echo "Building Docker image and running Linphone container..."
 cd /home/admin/pa
-docker load -i pa.tar
-docker load -i icecast.tar
 sudo -u admin newgrp docker <<EOF
 docker network create radiopa
-###docker build -t pa .
-
+docker build -t pa .
 docker run -dit \
   --restart unless-stopped \
   --network radiopa \
@@ -88,7 +85,6 @@ docker run -dit \
   -e ICECAST_RELAY_PASSWORD=Admin \
   -e ICECAST_PASSWORD=Admin \
   moul/icecast
-
 EOF
 
 # ------------------- 7. SETUP NODE DASHBOARD -------------------
