@@ -1,5 +1,5 @@
 PA-Music
-PA-Music is a Docker-based solution designed to stream online music and register to a SIP account, with easy web-based configuration.
+PA-Music is a Docker-based solution designed to stream online music and register to a SIP account, with easy web-based dashboard configuration.
 
 
 🔧 Setup Instructions
