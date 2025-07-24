@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Radio Config Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e3f2fd);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    .banner {
+      width: 100%;
+      height: auto;
+      max-height: 180px;
+      background: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+      z-index: 1;
+    }
+    .banner img {
+      max-width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+    }
+    .title {
+      margin: 10px 0 20px;
+      background: white;
+      padding: 15px 30px;
+      border-radius: 12px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #666666;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      margin-top: 10px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 500;
+      color: #555;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.2s ease;
+    }
+    input:focus, select:focus {
+      border-color: #2196f3;
+      outline: none;
+    }
+    .default-value {
+      color: #888;
+      font-style: italic;
+      font-family: "Courier New", Courier, monospace;
+    }
+    button[type="submit"], button[type="button"] {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+    button:hover {
+      background-color: #1976d2;
+      transform: scale(1.02);
+    }
+    #statusMsg {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+      border-radius: 8px;
+      display: none;
+    }
+    #customModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    #modalContent {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      font-size: 16px;
+      color: #333;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <img src="banner.jpg" alt="Banner" />
+  </div>
+  <div class="title">PA Control Dashboard</div>
+
+  <div class="card">
+    <form id="configForm">
+      <label for="VOLUME_NORMAL">Music normal volume
+        <button type="button" id="muteBtn" style="float: right; font-size: 12px; padding: 4px 8px;">🔇 Mute</button>
+      </label>
+      <input name="VOLUME_NORMAL" type="number" id="VOLUME_NORMAL" />
+
+      <label for="VOLUME_CALL">Music volume during calls</label>
+      <input name="VOLUME_CALL" type="number" id="VOLUME_CALL" />
+
+      <label for="CALL_AUDIO_VOLUME">Call audio volume</label>
+      <input name="CALL_AUDIO_VOLUME" type="number" id="CALL_AUDIO_VOLUME" />
+
+      <div id="protectedSection" style="display:none;">
+        <label for="STREAM_URL">Stream URL</label>
+        <input name="STREAM_URL" type="text" id="STREAM_URL" />
+
+        <label for="AUDIO_DEVICE_SELECT">Audio Device</label>
+        <select id="AUDIO_DEVICE_SELECT" onchange="handleAudioDeviceChange()"></select>
+
+        <div id="customAudioWrapper" style="display: none;">
+          <label for="AUDIO_DEVICE">Custom Audio Device</label>
+          <input name="AUDIO_DEVICE" type="text" id="AUDIO_DEVICE" />
+        </div>
+
+        <label for="PHONE">Phone Number</label>
+        <input name="PHONE" type="text" id="PHONE" />
+
+        <label for="PASSWORD">Password</label>
+        <input name="PASSWORD" type="text" id="PASSWORD" />
+      </div>
+
+      <button type="submit">Save Configuration</button>
+      <button type="button" onclick="showLog()">Show Log</button>
+
+      <div id="loginSection">
+        <label for="LOGIN_PASSWORD">Enter Admin Password</label>
+        <input type="password" id="LOGIN_PASSWORD" />
+        <button type="button" onclick="authenticate()">Login</button>
+      </div>
+
+      <div id="statusMsg"></div>
+    </form>
+  </div>
+
+  <!-- ✅ Shown only after login -->
+  <div id="pulseBtnWrapper" style="display: none; margin-top: 20px; width: 100%; max-width: 600px;">
+    <button type="button" style="width: 100%;" onclick="restartPulse()">Restart PulseAudio Service</button>
+  </div>
+
+  <!-- ✅ Stream player shown after login -->
+  <!-- ✅ Stream player shown after login -->
+  <div id="streamPlayerSection" style="display: none; margin-top: 20px; width: 100%; max-width: 600px;">
+    <audio id="streamAudio" controls style="width: 100%;">
+      <source id="streamSource" src="" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <div id="customModal">
+    <div id="modalContent"></div>
+  </div>
+
+  <script>
+    function authenticate() {
+      const pw = document.getElementById('LOGIN_PASSWORD').value;
+      if (pw === 'Admin') {
+        document.getElementById('protectedSection').style.display = 'block';
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('pulseBtnWrapper').style.display = 'block';
+        document.getElementById('streamPlayerSection').style.display = 'block';
+        document.getElementById('streamSource').src = window.config.STREAM_PLAY_URL || '';
+        document.getElementById('streamAudio').load();
+        loadAudioDevices();
+      } else {
+        showModal('Incorrect password');
+      }
+    }
+
+    function setFieldValue(id, value) {
+      const el = document.getElementById(id);
+      el.value = value || '';
+      if (value) el.classList.add('default-value');
+      el.addEventListener('input', () => {
+        if (el.value.trim() !== '') el.classList.remove('default-value');
+        else el.classList.add('default-value');
+      });
+    }
+
+    function handleAudioDeviceChange() {
+      const select = document.getElementById('AUDIO_DEVICE_SELECT');
+      const wrapper = document.getElementById('customAudioWrapper');
+      const input = document.getElementById('AUDIO_DEVICE');
+      if (select.value === '__custom__') {
+        wrapper.style.display = 'block';
+        input.required = true;
+        input.value = '';
+      } else {
+        wrapper.style.display = 'none';
+        input.required = false;
+        input.value = select.value;
+      }
+    }
+
+    function showModal(message) {
+      const modal = document.getElementById('customModal');
+      const content = document.getElementById('modalContent');
+      content.innerText = message;
+      modal.style.display = 'flex';
+      setTimeout(() => { modal.style.display = 'none'; }, 4000);
+    }
+
+    function showLog() {
+      window.open('/log-viewer', '_blank');
+    }
+
+    function loadAudioDevices() {
+      fetch('/audio-devices')
+        .then(res => res.json())
+        .then(devices => {
+          const select = document.getElementById('AUDIO_DEVICE_SELECT');
+          select.innerHTML = '';
+          devices.forEach(dev => {
+            const option = document.createElement('option');
+            option.value = dev;
+            option.textContent = dev;
+            select.appendChild(option);
+          });
+          const customOption = document.createElement('option');
+          customOption.value = '__custom__';
+          customOption.textContent = 'Custom...';
+          select.appendChild(customOption);
+
+          if (window.config && window.config.AUDIO_DEVICE) {
+            const match = devices.includes(window.config.AUDIO_DEVICE);
+            if (match) {
+              select.value = window.config.AUDIO_DEVICE;
+              document.getElementById('AUDIO_DEVICE').value = window.config.AUDIO_DEVICE;
+            } else {
+              select.value = '__custom__';
+              document.getElementById('customAudioWrapper').style.display = 'block';
+              setFieldValue('AUDIO_DEVICE', window.config.AUDIO_DEVICE);
+            }
+          }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.config) {
+        setFieldValue('STREAM_URL', window.config.STREAM_URL);
+        setFieldValue('VOLUME_NORMAL', window.config.VOLUME_NORMAL);
+        setFieldValue('VOLUME_CALL', window.config.VOLUME_CALL);
+        setFieldValue('CALL_AUDIO_VOLUME', window.config.CALL_AUDIO_VOLUME);
+        setFieldValue('PHONE', window.config.PHONE);
+        setFieldValue('PASSWORD', window.config.PASSWORD);
+      }
+    });
+
+    document.getElementById('configForm').addEventListener('submit', function (e) {
+     e.preventDefault();
+     const formData = new FormData(this);
+     const saveBtn = this.querySelector('button[type="submit"]');
+     const statusMsg = document.getElementById('statusMsg');
+
+     // Disable button + show loading text
+     saveBtn.disabled = true;
+     const originalText = saveBtn.textContent;
+     saveBtn.textContent = 'Saving...';
+
+     // Disable form inputs temporarily
+     Array.from(this.elements).forEach(el => el.disabled = true);
+
+     const originalPhone = window.config?.PHONE || '';
+     const originalHash = window.config?.PASSWORD || '';
+     const currentPhone = document.getElementById('PHONE').value.trim();
+     const currentPassword = document.getElementById('PASSWORD').value.trim();
+
+     if (currentPhone !== originalPhone && currentPassword === originalHash) {
+       showModal('If you change the phone number, you must also enter the SIP password.');
+       saveBtn.disabled = false;
+       saveBtn.textContent = originalText;
+       Array.from(this.elements).forEach(el => el.disabled = false);
+       return;
+     }
+
+     fetch('/save', {
+       method: 'POST',
+       body: new URLSearchParams(formData)
+     })
+       .then(res => res.text())
+       .then(text => {
+         if (text.includes('<pre>')) {
+           const newTab = window.open('', '_blank');
+           newTab.document.write('<!DOCTYPE html><html><head><title>radio.log</title><style>body{font-family:monospace;padding:20px;background:#f8f9fa;color:#333;}pre{white-space:pre-wrap;word-wrap:break-word;background:#fff;border:1px solid #ccc;padding:15px;border-radius:8px;max-height:90vh;overflow:auto;}</style></head><body><h2>radio.log</h2><pre>' + text.replace(/<\/?pre>/g, '') + '</pre></body></html>');
+           newTab.document.close();
+         } else {
+           statusMsg.innerText = 'Configuration saved. Restarting...';
+           statusMsg.style.display = 'block';
+
+           setTimeout(() => {
+             statusMsg.innerText = 'Ready';
+             saveBtn.disabled = false;
+             saveBtn.textContent = originalText;
+             Array.from(document.getElementById('configForm').elements).forEach(el => el.disabled = false);
+             setTimeout(() => {
+               statusMsg.style.display = 'none';
+             }, 3000);
+           }, 8000); // 8 seconds delay
+         }
+       })
+       .catch(err => {
+         showModal('Failed to save configuration');
+         saveBtn.disabled = false;
+         saveBtn.textContent = originalText;
+         Array.from(this.elements).forEach(el => el.disabled = false);
+       });
+   });
+
+
+
+    function restartPulse() {
+      fetch('/restart-pulse', { method: 'POST' })
+        .then(res => res.text())
+        .then(text => showModal(text || 'PulseAudio restarted!'))
+        .catch(err => showModal('Failed to restart PulseAudio'));
+    }
+
+// Store previous values so we can restore them
+  let prevVolumeNormal = null;
+  let prevVolumeCall = null;
+  let isMuted = false;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const muteBtn = document.getElementById('muteBtn');
+    const volNormalInput = document.getElementById('VOLUME_NORMAL');
+    const volCallInput = document.getElementById('VOLUME_CALL');
+    const configForm = document.getElementById('configForm');
+
+    // Initialize previous volumes from inputs, if any
+    prevVolumeNormal = volNormalInput.value !== "" ? volNormalInput.value : '50';
+    prevVolumeCall = volCallInput.value !== "" ? volCallInput.value : '50';
+
+    muteBtn.addEventListener('click', () => {
+      if (!isMuted) {
+        // Save current values only if not muted yet
+        prevVolumeNormal = volNormalInput.value !== "" ? volNormalInput.value : '50';
+        prevVolumeCall = volCallInput.value !== "" ? volCallInput.value : '50';
+
+        // Set both volumes to 0 (mute)
+        volNormalInput.value = 0;
+        volCallInput.value = 0;
+
+        muteBtn.textContent = '🔊 Unmute';
+
+        isMuted = true;
+      } else {
+        // Restore previous volumes
+        volNormalInput.value = prevVolumeNormal;
+        volCallInput.value = prevVolumeCall;
+
+        muteBtn.textContent = '🔇 Mute';
+
+        isMuted = false;
+      }
+
+      // Submit form so server updates volumes
+      configForm.requestSubmit();
+    });
+  });
+
+  </script>
+</body>
+</html>
